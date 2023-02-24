@@ -9,6 +9,7 @@ from core.comment.models import Comment
 from core.comment.serializers import CommentSerializer
 from core.auth.permissions import UserPermission
 
+from django.core.cache import cache
 
 class CommentViewSet(AbstractViewSet):
     http_method_names = ('post', 'get', 'put', 'delete')
@@ -32,7 +33,24 @@ class CommentViewSet(AbstractViewSet):
         self.check_object_permissions(self.request, obj)
 
         return obj
+    # TODO comment cache not implemented
+    # return the cache list when fetching the list
+    # def list(self, request, *args, **kwargs):
+    #     # cache the post list
+    #     # comment_objects = cache.get('comment_objects')
+    #     # if comment_objects is None:
+    #     #     comment_objects = self.filter_queryset(self.get_queryset())
+    #     #     cache.set('comment_objects', comment_objects)
+    #     comment_objects = self.filter_queryset(self.get_queryset())
 
+    #     page = self.paginate_queryset(comment_objects)
+    #     if page is not None:
+    #         serializer = self.get_serializer(page, many=True)
+    #         return self.get_paginated_response(serializer.data)
+        
+    #     serializer = self.get_serializer(comment_objects, many=True)
+    #     return Response(serializer.data)
+    
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

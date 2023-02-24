@@ -7,7 +7,7 @@ from core.post.models import Post
 from core.post.serializers import PostSerializer
 from core.auth.permissions import UserPermission
 
-
+from django.core.cache import cache
 class PostViewSet(AbstractViewSet):
     http_method_names = ('post', 'get', 'put', 'delete')
     permission_classes = (UserPermission,)
@@ -23,7 +23,24 @@ class PostViewSet(AbstractViewSet):
         self.check_object_permissions(self.request, obj)
 
         return obj
+    # return the cache list when fetching the list
+    def list(self, request, *args, **kwargs):
+        # cache the post list
+        post_objects = cache.get('post_objects')
+        if post_objects is None:
+            post_objects = self.get_queryset()
+            cache.set('post_objects', post_objects)
+        
+        post_objects = self.filter_queryset(post_objects)
 
+        page = self.paginate_queryset(post_objects)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        
+        serializer = self.get_serializer(post_objects, many=True)
+        return Response(serializer.data)
+    
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

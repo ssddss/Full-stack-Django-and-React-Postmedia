@@ -12,7 +12,8 @@ services:
       - "80:80"
     depends_on:
       - api
-
+  redis:
+    image: redis:alpine
   api:
     container_name: postagram_api
     build: .
@@ -27,6 +28,7 @@ services:
       - uploads_volume:/app/uploads
     depends_on:
       - db
+      - redis
   db:
     container_name: postagram_db
     image: postgres:14.3-alpine

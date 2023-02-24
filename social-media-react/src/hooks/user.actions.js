@@ -57,6 +57,10 @@ function useUserActions() {
     return axiosService
       .post(`${baseURL}/auth/logout/`, { refresh: getRefreshToken() })
       .then(() => {
+        // localStorage.removeItem("auth");
+        // navigate("/login");
+      })
+      .finally(() => {
         localStorage.removeItem("auth");
         navigate("/login");
       });
